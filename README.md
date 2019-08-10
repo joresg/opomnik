@@ -1,1 +1,1 @@
-opomnik
+reminder web page using django
