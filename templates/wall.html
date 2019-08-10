@@ -60,7 +60,7 @@
                 $.ajaxSetup ({
                     cache: false,
                     complete: function() {
-                        setTimeout(worer,10000);
+                        setTimeout(worker,10000);
                     }
                         
                 });
@@ -76,6 +76,10 @@
                     }
                 });
                 var temp = response.split("&");
+                var st_objav = temp.length;
+                if(temp.length==1&&temp[0]==""){
+                    st_objav=0;
+                }
                 //posodobi objave na strani, ce se ne ujemajo s tistimi na serverju
                 /*
                 for(var i=0; i<temp.length-1; i++){
@@ -90,14 +94,13 @@
                 while($("#"+x).text().length>0){
                     x++;
                 }
-                if(x!=temp.length){
-                    console.log("X: "+x+" temp.length: "+temp.length);
-                    if(x>temp.length){
+                if(x!=st_objav){
+                    if(x>st_objav){
                         //alert("vec jih je na strani kot v bazi");
                         selektor = 0;
                         while($("#"+selektor).text().length>0){
                             var izbrisi = true;
-                            for(var i=0;i<temp.length;i++){
+                            for(var i=0;i<st_objav;i++){
                                 if($("#"+selektor).text()==temp[i]){
                                     izbrisi=false;
                                     break;
@@ -110,15 +113,15 @@
                             selektor++;
                         }
                     }
-                    else if(x<temp.length){
+                    else if(x<st_objav){
                         //console.log("treba dodat iz baze na stran...");
-                        for(var i=0;i<temp.length;i++){
+                        for(var i=0;i<st_objav;i++){
                             objava = temp[i];
-                            console.log("objava: "+objava);
+                            //console.log("objava: "+objava);
                             dodaj=true;
                             selektor = 0;
                             while($("#"+selektor).text().length>0){
-                                console.log("selektor: "+$("#"+selektor).text());
+                                //console.log("selektor: "+$("#"+selektor).text());
                                 if($("#"+selektor).text()==objava){
                                     dodaj=false;
                                     break;
@@ -128,10 +131,10 @@
                             //console.log("dodaj: "+dodaj);
                             if(dodaj){
                                 var txt = '<li id="'+x+'"'+'name="objava_'+x+'">'+temp[i]+'</li>';
-                                console.log("TXT: "+txt);
+                                //console.log("TXT: "+txt);
                                 //<input type="checkbox" id="{{ forloop.counter0 }}_" name="{{ forloop.counter0 }}" value="{{ forloop.counter0 }}">
                                 var check_box_txt = '<input type="checkbox" id="'+x+'_" '+'name="'+x+'"'+' value="'+x+'">';
-                                console.log(check_box_txt);
+                                //console.log(check_box_txt);
                                 $("ul").append(check_box_txt); //append corresponding checkbox
                                 $("ul").append(txt);   // Append new elements
                             }
