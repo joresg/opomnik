@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Opomnik</title>
+</head>
+<body>
+        <h1 style="text-align:center;font-size:400%">Opomnik</h1>
+
+        <form action="dodaj" method="POST">
+            {% csrf_token %}
+            <input type="text" name="nova_objava" placeholder="dodaj opomnik">
+            <input type="submit" value="Dodaj">
+        </form>
+        <form action="deleted">
+            <input type="submit" value="Izbrisani">
+        </form>
+        <form action="delete_all">
+            <input type="submit" value="Izbrisi vse">
+        </form>
+        <form action="delete" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="Izbrisi"><br><br>
+            <ul>
+            {% for objava in objave %}
+                <input type="checkbox" id="{{ forloop.counter0 }}_" name="{{ forloop.counter0 }}" value="{{ forloop.counter0 }}">
+                <li id="{{ forloop.counter0 }}" name="objava_{{ forloop.counter0 }}">{{objava.tekst}}</li>
+            {% endfor %}
+            </ul>
+        </form>
+        
+        {% csrf_token %}
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script type="text/javascript">
+            
+            //jquery ajax call za posodobit objavo
+            $(function(){
+                $("p").on('click',function(){
+                    var new_value = prompt("nova objava");
+                    var id_ = $(this).attr('id');
+                    console.log(id_);
+                    $("#"+id_).text(new_value);
+                    $.post("edit", {
+                        csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                        id_objave:id_,
+                        new_post:new_value
+                    }, function(data,status){
+                        //$("#test").html(data);
+                        console.log("success");
+                    });
+                });
+            });
+            $(function(){
+                
+            });
+            $(function worker(){
+                // don't cache ajax or content won't be fresh
+                $.ajaxSetup ({
+                    cache: false,
+                    complete: function() {
+                        setTimeout(worer,10000);
+                    }
+                        
+                });
+
+                //GET response pa poglej, ce je kakasna objava spremenjena
+                var response = '';
+                $.ajax({ type: "GET",   
+                        url: "ajax_update_posts",   
+                        async: false,
+                        success : function(text)
+                        {
+                        response = text;
+                    }
+                });
+                var temp = response.split("&");
+                //posodobi objave na strani, ce se ne ujemajo s tistimi na serverju
+                /*
+                for(var i=0; i<temp.length-1; i++){
+                    //console.log("temp["+i+"]; "+temp[i]+ " objava: "+$("#"+i).text());
+                    objava = $("#"+i).text();
+                    if(temp[i]!=objava){
+                        $("#"+i).text(temp[i]);
+                    }
+                }
+                */
+                var x = 0;
+                while($("#"+x).text().length>0){
+                    x++;
+                }
+                if(x!=temp.length){
+                    console.log("X: "+x+" temp.length: "+temp.length);
+                    if(x>temp.length){
+                        //alert("vec jih je na strani kot v bazi");
+                        selektor = 0;
+                        while($("#"+selektor).text().length>0){
+                            var izbrisi = true;
+                            for(var i=0;i<temp.length;i++){
+                                if($("#"+selektor).text()==temp[i]){
+                                    izbrisi=false;
+                                    break;
+                                }
+                            }
+                            if(izbrisi){
+                                $("#"+selektor).remove();
+                                $("#"+selektor+"_").remove();
+                            }
+                            selektor++;
+                        }
+                    }
+                    else if(x<temp.length){
+                        //console.log("treba dodat iz baze na stran...");
+                        for(var i=0;i<temp.length;i++){
+                            objava = temp[i];
+                            console.log("objava: "+objava);
+                            dodaj=true;
+                            selektor = 0;
+                            while($("#"+selektor).text().length>0){
+                                console.log("selektor: "+$("#"+selektor).text());
+                                if($("#"+selektor).text()==objava){
+                                    dodaj=false;
+                                    break;
+                                }
+                                selektor++;
+                            }
+                            //console.log("dodaj: "+dodaj);
+                            if(dodaj){
+                                var txt = '<li id="'+x+'"'+'name="objava_'+x+'">'+temp[i]+'</li>';
+                                console.log("TXT: "+txt);
+                                //<input type="checkbox" id="{{ forloop.counter0 }}_" name="{{ forloop.counter0 }}" value="{{ forloop.counter0 }}">
+                                var check_box_txt = '<input type="checkbox" id="'+x+'_" '+'name="'+x+'"'+' value="'+x+'">';
+                                console.log(check_box_txt);
+                                $("ul").append(check_box_txt); //append corresponding checkbox
+                                $("ul").append(txt);   // Append new elements
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+</body>
+</html>

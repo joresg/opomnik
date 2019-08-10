@@ -1,0 +1,11 @@
+<form action="../">
+    <input type="submit" value="Nazaj">
+</form>
+
+<form action="../delete_all_final">
+    <input type="submit" value="Dokoncno izbrisi">
+</form>
+
+{% for objava in izbrisane_objave %}
+    {{ objava.tekst }}<br>
+{% endfor %}
