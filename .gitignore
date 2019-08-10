@@ -1,0 +1,4 @@
+wall/__pycache__
+wall/migrations
+myblog/
+db.sqlite3
