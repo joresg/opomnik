@@ -31,8 +31,9 @@ def delete_all_final(request):
 
 def delete(request):
     """ izbrisi izbrano objavo """
-    for pozicija, i in enumerate(Objava.objects.all()):
-        if request.POST.get(str(pozicija), "dont_delete") != "dont_delete":
+    #for pozicija, i in enumerate(Objava.objects.all()):
+    for i in Objava.objects.all():
+        if request.POST.get(str(i.id), "dont_delete") != "dont_delete":
             #prestavi jo med izbrisane in jo potem izbrisi
             prestavi = IzbrisanaObjava(tekst=i)
             prestavi.save()
@@ -49,9 +50,9 @@ def edit(request):
     """ posodobi objavo na serverju """
     haha = request.POST['new_post']
     id_objave1 = request.POST['id_objave']
-    id_objave = int(id_objave1)
-    for index, objava in enumerate(Objava.objects.all()):
-        if index == id_objave:
+    #id_objave = int(id_objave1)
+    for objava in Objava.objects.all():
+        if str(objava.id) == id_objave1:
             objava.tekst = haha
             objava.save()
             break
@@ -61,5 +62,5 @@ def ajax_update_posts(request):
     """ funkcija za posodobit stran brez osvezevanja """
     odziv = ''
     for objava in Objava.objects.all():
-        odziv = odziv + objava.tekst + '&'
+        odziv = odziv + objava.tekst + ':' + str(objava.id) + '&'
     return HttpResponse(odziv[0:len(odziv)-1])

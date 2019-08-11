@@ -23,10 +23,10 @@
         <form action="delete" method="POST">
             {% csrf_token %}
             <input type="submit" value="Izbrisi"><br><br>
-            <ul>
+            <ul id="objave_list">
             {% for objava in objave %}
-                <input type="checkbox" id="{{ forloop.counter0 }}_" name="{{ forloop.counter0 }}" value="{{ forloop.counter0 }}">
-                <li id="{{ forloop.counter0 }}" name="objava_{{ forloop.counter0 }}">{{objava.tekst}}</li>
+                <input type="checkbox" id="{{ objava.id }}_" name="{{ objava.id }}" value="{{ objava.id }}">
+                <li id="{{ objava.id }}" name="objava_{{ objava.id }}">{{objava.tekst}}</li>
             {% endfor %}
             </ul>
         </form>
@@ -60,12 +60,12 @@
                 $.ajaxSetup ({
                     cache: false,
                     complete: function() {
-                        setTimeout(worker,10000);
+                        setTimeout(worker,10000); //vsakih 10 sekund klici funkcijo, ki naredi ajax call
                     }
                         
                 });
 
-                //GET response pa poglej, ce je kakasna objava spremenjena
+                //GET response pa poglej, ce je kakasna objava spremenjena/zbrisana/dodana
                 var response = '';
                 $.ajax({ type: "GET",   
                         url: "ajax_update_posts",   
@@ -73,74 +73,66 @@
                         success : function(text)
                         {
                         response = text;
+                        
                     }
                 });
-                var temp = response.split("&");
-                var st_objav = temp.length;
-                if(temp.length==1&&temp[0]==""){
-                    st_objav=0;
+                console.log("odziv: "+response);
+                st_objav_server = response.split("&").length
+                if(st_objav_server==1&&response.split("&")[0]==""){
+                    st_objav_server=0;
                 }
-                //posodobi objave na strani, ce se ne ujemajo s tistimi na serverju
-                /*
-                for(var i=0; i<temp.length-1; i++){
-                    //console.log("temp["+i+"]; "+temp[i]+ " objava: "+$("#"+i).text());
-                    objava = $("#"+i).text();
-                    if(temp[i]!=objava){
-                        $("#"+i).text(temp[i]);
-                    }
+                st_objav_stran = $('ul#objave_list li').length;
+                console.log("server: "+st_objav_server+" stran: "+st_objav_stran);
+                objave_split = response.split("&");
+                objave_id_split = response.split("&");
+                objave_id_split_backup = objave_id_split;
+                console.log("izpisujem");
+                for(var i=0;i<objave_split.length;i++){
+                    objave_split[i]=objave_split[i].substring(0,objave_split[i].indexOf(":"));
+                    objave_id_split[i]=objave_id_split[i].substring(objave_id_split[i].indexOf(":")+1);
+                    console.log(objave_split[i]);
+                    console.log(objave_id_split[i]);
                 }
-                */
-                var x = 0;
-                while($("#"+x).text().length>0){
-                    x++;
-                }
-                if(x!=st_objav){
-                    if(x>st_objav){
-                        //alert("vec jih je na strani kot v bazi");
-                        selektor = 0;
-                        while($("#"+selektor).text().length>0){
-                            var izbrisi = true;
-                            for(var i=0;i<st_objav;i++){
-                                if($("#"+selektor).text()==temp[i]){
-                                    izbrisi=false;
-                                    break;
-                                }
-                            }
-                            if(izbrisi){
-                                $("#"+selektor).remove();
-                                $("#"+selektor+"_").remove();
-                            }
-                            selektor++;
+                $('#objave_list li').each(function(i, li) {
+                    var product = $(li);
+                    var product_id = product.attr("id");
+                    console.log("objava---"+product_id);
+                    // poglej najprej, vse objave na strani, ce katere ni na serverju jo odstrani
+                    var izbrisi = true;
+                    for(var i=0; i<objave_id_split.length;i++){
+                        if(objave_id_split[i]==product_id){
+                            izbrisi=false;
+                            //ce jo najdes jo oznaci, da je kasneje ne dodas
+                            objave_id_split[i]="x";
+                            break;
                         }
                     }
-                    else if(x<st_objav){
-                        //console.log("treba dodat iz baze na stran...");
-                        for(var i=0;i<st_objav;i++){
-                            objava = temp[i];
-                            //console.log("objava: "+objava);
-                            dodaj=true;
-                            selektor = 0;
-                            while($("#"+selektor).text().length>0){
-                                //console.log("selektor: "+$("#"+selektor).text());
-                                if($("#"+selektor).text()==objava){
-                                    dodaj=false;
-                                    break;
-                                }
-                                selektor++;
-                            }
-                            //console.log("dodaj: "+dodaj);
-                            if(dodaj){
-                                var txt = '<li id="'+x+'"'+'name="objava_'+x+'">'+temp[i]+'</li>';
-                                //console.log("TXT: "+txt);
-                                //<input type="checkbox" id="{{ forloop.counter0 }}_" name="{{ forloop.counter0 }}" value="{{ forloop.counter0 }}">
-                                var check_box_txt = '<input type="checkbox" id="'+x+'_" '+'name="'+x+'"'+' value="'+x+'">';
-                                //console.log(check_box_txt);
-                                $("ul").append(check_box_txt); //append corresponding checkbox
-                                $("ul").append(txt);   // Append new elements
-                            }
+                    if(izbrisi){
+                        console.log("izbrisi objavo "+product_id);
+                        $("#"+product_id+"_").remove();
+                        product.remove();
+                    }
+                    else{
+                        console.log("ne izbrisi objave: "+product_id);
+                    }
+
+                  });
+                  console.log("stanje po preverjanju")
+                    for(var i=0;i<objave_id_split.length;i++){
+                        console.log(objave_split[i]+":"+objave_id_split[i]);
+                    }
+                    console.log("konec stanja po preverjanu");
+                    //dodaj se vse preostale objave, ki so na serverju
+                    for(var i=0;i<objave_split.length;i++){
+                        if(objave_id_split[i]!="x"&&objave_id_split[i]!=""){
+                            var np = '<li id="'+objave_id_split[i]+'" name="objava_'+objave_id_split[i]+'">'+objave_split[i]+'</li>';
+                            var nc = '<input type="checkbox" id="'+objave_id_split[i]+'_" name="'+objave_id_split_backup[i]+'" value="'+objave_id_split[i]+'">';
+                            //console.log("NEW CHECKBOX: "+nc);
+                            //console.log("objava za dodat: "+np);
+                            $("ul").append(nc);
+                            $("ul").append(np);
                         }
                     }
-                }
             });
         </script>
 </body>
