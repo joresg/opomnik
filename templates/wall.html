@@ -102,7 +102,10 @@
                     for(var i=0; i<objave_id_split.length;i++){
                         if(objave_id_split[i]==product_id){
                             izbrisi=false;
-                            //ce jo najdes jo oznaci, da je kasneje ne dodas
+                            //ce jo najdes jo oznaci, da je kasneje ne dodas pa poglej se, ce je isti tekst
+                            if(product.text()!=objave_split[i]){
+                                product.text(objave_split[i]);
+                            }
                             objave_id_split[i]="x";
                             break;
                         }
