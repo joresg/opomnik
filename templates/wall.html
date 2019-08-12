@@ -23,12 +23,14 @@
         <form action="delete" method="POST">
             {% csrf_token %}
             <input type="submit" value="Izbrisi"><br><br>
+            <div class="objave1">
             <ul id="objave_list">
             {% for objava in objave %}
                 <input type="checkbox" id="{{ objava.id }}_" name="{{ objava.id }}" value="{{ objava.id }}">
                 <li id="{{ objava.id }}" name="objava_{{ objava.id }}">{{objava.tekst}}</li>
             {% endfor %}
             </ul>
+            </div>
         </form>
         
         {% csrf_token %}
@@ -37,7 +39,7 @@
             
             //jquery ajax call za posodobit objavo
             $(function(){
-                $("li").on('click',function(){
+                $(".objave1").on('click','li',function(){
                     var new_value = prompt("nova objava");
                     var id_ = $(this).attr('id');
                     console.log(id_);
