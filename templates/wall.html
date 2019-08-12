@@ -40,7 +40,11 @@
             //jquery ajax call za posodobit objavo
             $(function(){
                 $(".objave1").on('click','li',function(){
-                    var new_value = prompt("nova objava");
+                    //var new_value = prompt("nova objava");
+                    var new_value="";
+                    while(new_value.length<1){
+                        new_value = prompt("nova objava");
+                    }
                     var id_ = $(this).attr('id');
                     console.log(id_);
                     $("#"+id_).text(new_value);
