@@ -7,7 +7,11 @@
     <title>Opomnik</title>
 </head>
 <body>
-        <h1 style="text-align:center;font-size:400%">Opomnik</h1>
+    
+    {% if user.is_authenticated %}
+    <h1 style="text-align:center;font-size:400%">Opomnik za {{user.username}} </h1>
+    <p><a href="logout">Odjava</a></p>
+    {% endif %}
 
         <form action="dodaj" method="POST">
             {% csrf_token %}
