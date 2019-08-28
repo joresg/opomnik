@@ -1,5 +1,8 @@
 wall/__pycache__
 wall/migrations
-myblog/
+myblog/__pycache__
+myblog/__init__.py
+myblog/settings.py
+myblog/wsgi.py
 db.sqlite3
 manage.py
